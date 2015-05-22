@@ -1,4 +1,4 @@
-require 'libxml'
+require 'nokogiri'
 require 'simplecov'
 
 class SimpleCov::Formatter::CoberturaFormatter
@@ -7,41 +7,41 @@ class SimpleCov::Formatter::CoberturaFormatter
 
   def format(result)
     xml = result_to_xml result
-    
+
     result_path = File.join( SimpleCov.coverage_path, RESULT_FILE_NAME )
     File.write(result_path, xml)
     puts "Coverage report generated for #{result.command_name} to #{result_path}"
     xml
   end
-  
+
   private
   def result_to_xml(result)
-    doc = LibXML::XML::Document.new
-    doc.root = LibXML::XML::Node.new('coverage')
+    doc = Nokogiri::XML::Document.new
+    doc.root = Nokogiri::XML::Node.new('coverage', doc)
     coverage = doc.root
 
     set_coverage_attributes(coverage, result)
 
-    coverage << sources = LibXML::XML::Node.new('sources')
-    sources << source = LibXML::XML::Node.new('source')
+    coverage << sources = Nokogiri::XML::Node.new('sources', doc)
+    sources << source = Nokogiri::XML::Node.new('source', doc)
     source << SimpleCov.root
 
-    coverage << packages = LibXML::XML::Node.new('packages')
-    packages << package = LibXML::XML::Node.new('package')
+    coverage << packages = Nokogiri::XML::Node.new('packages', doc)
+    packages << package = Nokogiri::XML::Node.new('package', doc)
     set_package_attributes(package, result)
 
-    package << classes = LibXML::XML::Node.new('classes')
+    package << classes = Nokogiri::XML::Node.new('classes', doc)
 
     result.files.each do |file|
-      classes << class_ = LibXML::XML::Node.new('class')
+      classes << class_ = Nokogiri::XML::Node.new('class', doc)
       set_class_attributes(class_, file)
 
-      class_ << LibXML::XML::Node.new('methods')
-      class_ << lines = LibXML::XML::Node.new('lines')
+      class_ << Nokogiri::XML::Node.new('methods', doc)
+      class_ << lines = Nokogiri::XML::Node.new('lines', doc)
 
       file.lines.each do |file_line|
         if file_line.covered? || file_line.missed?
-          lines << line = LibXML::XML::Node.new('line')
+          lines << line = Nokogiri::XML::Node.new('line', doc)
           set_line_attributes(line, file_line)
         end
       end
@@ -49,7 +49,7 @@ class SimpleCov::Formatter::CoberturaFormatter
 
     set_xml_head(doc.to_s)
   end
-  
+
   def set_coverage_attributes(coverage, result)
     coverage['line-rate'] = (result.covered_percent/100).round(2).to_s
     coverage['branch-rate'] = '0'
@@ -62,14 +62,14 @@ class SimpleCov::Formatter::CoberturaFormatter
     coverage['version'] = '0'
     coverage['timestamp'] = Time.now.to_i.to_s
   end
-  
+
   def set_package_attributes(package, result)
     package['name'] = 'simplecov-cobertura'
     package['line-rate'] = (result.covered_percent/100).round(2).to_s
     package['branch-rate'] = '0'
     package['complexity'] = '0'
   end
-  
+
   def set_class_attributes(class_, file)
     filename = file.filename
     path = filename[SimpleCov.root.length+1..-1]
@@ -79,13 +79,13 @@ class SimpleCov::Formatter::CoberturaFormatter
     class_['branch-rate'] = '0'
     class_['complexity'] = '0'
   end
-  
+
   def set_line_attributes(line, file_line)
     line['number'] = file_line.line_number.to_s
     line['branch'] = 'false'
     line['hits'] = file_line.coverage.to_s
   end
-  
+
   def set_xml_head(xml)
     lines = xml.split("\n")
     lines.insert(1, "<!DOCTYPE coverage SYSTEM \"#{DTD_URL}\">")
@@ -93,4 +93,3 @@ class SimpleCov::Formatter::CoberturaFormatter
     lines.join("\n")
   end
 end
-
