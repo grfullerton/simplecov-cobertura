@@ -22,6 +22,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'ci_reporter_test_unit', '~> 1.0'
 
-  spec.add_runtime_dependency 'nokogiri', '~> 1.6.6.2'
-  spec.add_runtime_dependency 'simplecov', '~> 0.8'
+  spec.add_runtime_dependency 'nokogiri', '~> 1.5'
+  spec.add_runtime_dependency 'simplecov', '~> 0.7'
 end
