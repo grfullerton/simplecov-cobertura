@@ -16,7 +16,11 @@ class CoberturaFormatterTest < Test::Unit::TestCase
 
   def test_format_save_file
     xml = @formatter.format(@result)
-    result_path = File.join(SimpleCov.coverage_path, SimpleCov::Formatter::CoberturaFormatter::RESULT_FILE_NAME)
+    result_path = File.join(
+      SimpleCov.coverage_path,
+      'cobertura',
+      SimpleCov::Formatter::CoberturaFormatter::RESULT_FILE_NAME
+    )
     assert_not_empty(xml)
     assert_equal(xml, IO.read(result_path))
   end

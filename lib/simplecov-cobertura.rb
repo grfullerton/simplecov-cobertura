@@ -8,7 +8,11 @@ class SimpleCov::Formatter::CoberturaFormatter
   def format(result)
     xml = result_to_xml result
 
-    result_path = File.join( SimpleCov.coverage_path, RESULT_FILE_NAME )
+    result_path = File.join(
+      SimpleCov.coverage_path,
+      'cobertura',
+      RESULT_FILE_NAME
+    )
     File.write(result_path, xml)
     puts "Coverage report generated for #{result.command_name} to #{result_path}"
     xml
